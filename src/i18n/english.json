@@ -1,0 +1,21 @@
+{
+  "surname": "Surname",
+  "name": "Name",
+  "middleName": "Middle Name",
+  "birthDate": "Date of birth",
+  "phoneNumber": "Phone number",
+  "email": "Email",
+  "code": "Code",
+
+
+  "enterSurname": "Enter your surname",
+  "enterName": "Enter your name",
+  "enterMiddleName": "Enter your middle name",
+  "enterBirthDate":"Enter your birth of date",
+  "enterEmail": "Enter your email",
+  "enterCode": "Enter your code",
+
+  "signUp": "Sign up",
+  "question": "Have you registered yet?",
+  "signIn": "Sign in"
+}

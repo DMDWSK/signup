@@ -1,0 +1,66 @@
+{
+  "name": "loginforms",
+  "version": "0.1.0",
+  "private": true,
+  "dependencies": {
+    "@jsonforms/examples": "^2.4.0",
+    "@jsonforms/material-renderers": "^2.4.0",
+    "@jsonforms/react": "^2.4.0",
+    "@material-ui/core": "^4.11.0",
+    "@material-ui/icons": "^4.9.1",
+    "@mitchallen/react-email-input-field": "^0.1.6",
+    "@reach/listbox": "^0.10.5",
+    "@reduxjs/toolkit": "^1.4.0",
+    "@testing-library/jest-dom": "^4.2.4",
+    "@testing-library/react": "^9.3.2",
+    "@testing-library/user-event": "^7.1.2",
+    "axios": "^0.19.2",
+    "i18next": "^19.6.3",
+    "i18next-browser-languagedetector": "^5.0.0",
+    "jwt-auth-react": "^4.1.2",
+    "material-ui": "^0.20.2",
+    "material-ui-icons": "^1.0.0-beta.36",
+    "react": "^16.13.1",
+    "react-date-picker": "^8.0.1",
+    "react-dom": "^16.13.1",
+    "react-dropzone": "^11.0.2",
+    "react-dropzone-component": "^3.2.0",
+    "react-hook-form": "^6.0.0",
+    "react-i18next": "^11.7.0",
+    "react-input-validation-hook": "^1.0.1",
+    "react-json-to-form": "^1.2.8",
+    "react-listbox": "^1.2.13",
+    "react-notifications": "^1.6.0",
+    "react-phone-input-2": "^2.13.7",
+    "react-phone-number-input": "^3.0.24",
+    "react-redux": "^7.2.0",
+    "react-router-dom": "^5.1.2",
+    "react-scripts": "3.4.1",
+    "react-window": "^1.8.5",
+    "reactstrap": "^8.5.1",
+    "redux": "^4.0.5",
+    "redux-form": "^8.3.6",
+    "redux-react-i18n": "^2.0.1"
+  },
+  "scripts": {
+    "start": "react-scripts start",
+    "build": "react-scripts build",
+    "test": "react-scripts test",
+    "eject": "react-scripts eject"
+  },
+  "eslintConfig": {
+    "extends": "react-app"
+  },
+  "browserslist": {
+    "production": [
+      ">0.2%",
+      "not dead",
+      "not op_mini all"
+    ],
+    "development": [
+      "last 1 chrome version",
+      "last 1 firefox version",
+      "last 1 safari version"
+    ]
+  }
+}

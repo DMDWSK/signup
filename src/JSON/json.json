@@ -1,0 +1,51 @@
+{
+
+  "item": [
+    {
+      "linkId": "3",
+      "text": "Intoxications",
+      "type": "group",
+      "item": [
+
+        {
+          "linkId": "3.1",
+          "text": "Do you smoke?",
+          "type": "boolean"
+        },
+        {
+          "linkId": "3.2",
+          "text": "Do you drink alchohol?",
+          "type": "string"
+        },
+        {
+          "linkId": "3.3",
+          "text": "Drugs",
+          "type": "group",
+          "item":[
+            {
+              "linkId": "3.3.1",
+              "text": "Marijuana?",
+              "type": "boolean"
+            },
+            {
+              "linkId": "3.3.2",
+              "text": "LSD?",
+              "type": "boolean"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "linkId": "1",
+      "text": "Do you have allergies?",
+      "type": "boolean"
+    },
+    {
+      "linkId": "2",
+      "text": "Do you do you?",
+      "type": "string"
+    },
+
+  ]
+},
