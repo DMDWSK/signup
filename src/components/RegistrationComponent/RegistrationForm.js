@@ -8,6 +8,7 @@ import {store} from "../../redux/store"
 import {savePhoneNumber} from "../../redux/actions"
 import {API_BASE_URL} from "../../constants/apiContants";
 import {I18nContext} from "../../i18n";
+import {redirectToUpload,redirectToLogin} from "../../redirect/redirect"
 
 
 let today = new Date();
@@ -15,13 +16,10 @@ today = today.getFullYear() + "-" + String(today.getMonth() + 1).padStart(2, '0'
     + String(today.getDate()).padStart(2, '0')
 
 
-const isEmpty = (value) => {
-    return value === 0;
 
-}
 
-function RegistrationForm(props)  {
-    const { translate } = useContext(I18nContext);
+function RegistrationForm(props) {
+    const {translate} = useContext(I18nContext);
     const dispatch = useDispatch();
     const [checked, setChecked] = useState(false);
     const [state, setState] = useState({
@@ -58,7 +56,7 @@ function RegistrationForm(props)  {
     }
 
     const handleChangeInitials = (event) => {
-        if ((!isEmpty(event.target.value.length))) {
+        // if ((!isEmpty(event.target.value.length))) {
             if (event.target.value.match("^[аА-яЯєЄіIїЇґҐa-zA-Z]*$") != null) {
                 const {id, value} = event.target
                 setState(prevState => ({
@@ -71,12 +69,12 @@ function RegistrationForm(props)  {
                     buttonDisabled: false,
                 }))
             }
-        } else {
-            setState(prevState => ({
-                ...prevState,
-                buttonDisabled: true,
-            }))
-        }
+        // } else {
+        //     setState(prevState => ({
+        //         ...prevState,
+        //         buttonDisabled: true,
+        //     }))
+        // }
     }
 
     const handleUserEmail = (event) => {
@@ -95,47 +93,6 @@ function RegistrationForm(props)  {
             ...prevState,
             [id]: value
         }))
-    }
-
-    const redirectToUpload = () => {
-        props.updateTitle('Upload')
-        props.history.push('/upload')
-    }
-
-    const redirectToLogin = () => {
-        props.updateTitle('Login')
-        props.history.push('/login');
-    }
-
-    const signUp = () => {
-        let payload = {
-            "username": state.username,
-            "email": state.email,
-            "firstName": state.firstName,
-            "lastName": state.lastName,
-            "middleName": state.middleName,
-            "dateOfBirth": state.dateOfBirth,
-            "code": state.code
-        };
-
-        axios.post(API_BASE_URL + state.url, payload)
-            .then(function () {
-                setState(prevState => (
-                    {
-                        ...prevState,
-                        url: "auth/signup",
-                        'successMessage': 'Ви були успішно зареєстровані'
-                    }
-                ))
-                redirectToUpload();
-            })
-            .catch(function (error) {
-                if (error.response.status === 409) {
-                    dispatch(savePhoneNumber(state.payload.username))
-                    props.showError("Даний номер телефону зареєстрований у нашій базі. Увійдіть!")
-                    redirectToLogin();
-                }
-            });
     }
 
     const getToken = () => {
@@ -164,7 +121,38 @@ function RegistrationForm(props)  {
 
                 }
             });
+    }
 
+    const signUp = () => {
+        let payload = {
+            "username": state.username,
+            "email": state.email,
+            "firstName": state.firstName,
+            "lastName": state.lastName,
+            "middleName": state.middleName,
+            "dateOfBirth": state.dateOfBirth,
+            "code": state.code
+        };
+
+        axios.post(API_BASE_URL + state.url, payload)
+            .then(function (response) {
+                setState(prevState => (
+                    {
+                        ...prevState,
+                        url: "auth/signup",
+                        'successMessage': 'Ви були успішно зареєстровані'
+                    }
+                ))
+                localStorage.setItem("token", response.data.accessToken)
+                redirectToUpload(props);
+            })
+            .catch(function (error) {
+                if (error.response.status === 409) {
+                    dispatch(savePhoneNumber(state.payload.username))
+                    props.showError("Даний номер телефону зареєстрований у нашій базі. Увійдіть!")
+                    redirectToLogin(props);
+                }
+            });
     }
 
     const handleSubmitClick = (e) => {
@@ -177,9 +165,9 @@ function RegistrationForm(props)  {
     }
 
     return (
-        <div className="card col-12 col-lg-4 login-card mt-2 hv-center">
+        <div className="card col-12 col-lg-4 login-card mt-2 hv-center" id="signUp">
+            <div id="categoryName" className="card-header">{translate(('registration'))}</div>
             <form>
-                {/*<LanguageSelect />*/}
                 <div className="form-group text-left">
                     <label htmlFor="exampleInputLastName">{translate(('surname'))}</label>
                     <input type="text"
@@ -267,7 +255,7 @@ function RegistrationForm(props)  {
 
                 <button
                     type="submit"
-                    className="btn btn-primary"
+                    className="buttonStyle"
                     onClick={handleSubmitClick}
                     // disabled={state.buttonDisabled}
                 >
@@ -281,7 +269,7 @@ function RegistrationForm(props)  {
             </div>
             <div className="mt-2">
                 <span>{translate(('question'))}</span>
-                <span className="loginText" onClick={() => redirectToLogin()}> {translate(('signIn'))}</span>
+                <span className="loginText" onClick={() => redirectToLogin(props)}> {translate(('signIn'))}</span>
             </div>
 
         </div>

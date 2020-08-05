@@ -1,4 +1,7 @@
 {
+  "registration": "Registration",
+  "login": "Login",
+  "language": "Select language",
   "surname": "Surname",
   "name": "Name",
   "middleName": "Middle Name",
@@ -6,7 +9,6 @@
   "phoneNumber": "Phone number",
   "email": "Email",
   "code": "Code",
-
 
   "enterSurname": "Enter your surname",
   "enterName": "Enter your name",
@@ -17,5 +19,14 @@
 
   "signUp": "Sign up",
   "question": "Have you registered yet?",
-  "signIn": "Sign in"
+  "signIn": "Sign in",
+
+
+  "getCode": "Get code",
+  "question2": "Haven't registered yet?",
+
+  "fileReason": "Uploading files",
+  "folderReason": "Uploading folders"
+
+
 }

@@ -1,16 +1,19 @@
 import React, {useState} from 'react';
 import './App.css';
-import Header from './components/Header/Header';
-import LoginForm from './components/LoginForm/LoginForm';
-import RegistrationForm from './components/RegistrationForm/RegistrationForm';
-import UploadFiles from "./components/Uploader/Uploader";
+import Header from './components/HeaderComponent/Header';
+import LoginForm from './components/LoginComponent/LoginForm';
+import RegistrationForm from './components/RegistrationComponent/RegistrationForm';
+import UploadFiles from "./components/UploaderComponent/Uploader";
 import {BrowserRouter as Router, Route, Switch} from "react-router-dom";
 import AlertComponent from './components/AlertComponent/AlertComponent';
-import Questionnaire from "./components/Questionnaire/Questionnaire";
+import Questionnaire from "./components/QuestionnaireComponent/Questionnaire";
+import Sidebar from "./components/SideBarComponent/SideBar";
 
 function App() {
     const [title, updateTitle] = useState(null);
     const [errorMessage, updateErrorMessage] = useState(null);
+
+
     return (
         <Router>
             <div className="App">

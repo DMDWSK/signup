@@ -4,12 +4,18 @@ import {materialRenderers, materialCells} from '@jsonforms/material-renderers';
 import "./Questionnaire.css"
 import React from 'react';
 import responseGenerator from "../FhirFormsComponent/ResponseGenerator";
+import Redirect from "react-router-dom/es/Redirect";
 
 function Questionnaire() {
     const schema = coreSchema.schema
     const uiSchema = coreSchema.ui
     const data = coreSchema.data;
     let stateData;
+    const token = localStorage.getItem("token")
+
+    function ifLogged() {
+        return !!token;
+    }
 
     const handleSubmitClick = () => {
         responseGenerator({
@@ -22,28 +28,28 @@ function Questionnaire() {
                 },
                 {
                     "linkId": "1",
-                    "code": [ {
+                    "code": [{
                         "system": "http://loinc.org",
                         "code": "45414-0",
                         "display": "History of stay in other residential facility"
-                    } ],
+                    }],
                     "text": "History of stay in other residential facility",
                     "type": "choice",
                     "required": false,
-                    "answerOption": [ {
-                        "extension": [ {
+                    "answerOption": [{
+                        "extension": [{
                             "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-optionPrefix",
                             "valueString": "0"
-                        } ],
+                        }],
                         "valueCoding": {
                             "code": "LA32-8",
                             "display": "No"
                         }
                     }, {
-                        "extension": [ {
+                        "extension": [{
                             "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-optionPrefix",
                             "valueString": "1"
-                        } ],
+                        }],
                         "valueCoding": {
                             "code": "LA33-6",
                             "display": "Yes"
@@ -53,7 +59,7 @@ function Questionnaire() {
                             "code": "LA1-0",
                             "display": "UTD"
                         }
-                    } ]
+                    }]
                 },
 
                 {
@@ -91,32 +97,36 @@ function Questionnaire() {
                     ]
                 },
             ]
-        },stateData)
+        }, stateData)
     }
 
     const handleChange = (event) => {
         stateData = event.data
     }
+    if (ifLogged() === true)
+        return (
+            <div className="questionnaire">
 
-    return (
-        <div className="questionnaire">
-
-            <JsonForms
-                schema={schema}
-                uischema={uiSchema}
-                data={data}
-                renderers={materialRenderers}
-                cells={materialCells}
-                onChange={handleChange}
-            />
-            <button
-                type="submit"
-                className="btn btn-primary"
-                onClick={handleSubmitClick}
-            >Надіслати
-            </button>
-        </div>
-    );
+                <JsonForms
+                    schema={schema}
+                    uischema={uiSchema}
+                    data={data}
+                    renderers={materialRenderers}
+                    cells={materialCells}
+                    onChange={handleChange}
+                />
+                <button
+                    type="submit"
+                    className="btn btn-primary"
+                    onClick={handleSubmitClick}
+                >Надіслати
+                </button>
+            </div>
+        );
+    else return (<Redirect
+        to={{
+            pathname: "/login",
+        }}/>)
 }
 
 export default Questionnaire;

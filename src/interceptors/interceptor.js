@@ -1,8 +1,6 @@
 import axios from "axios";
-import {API_BASE_URL} from "../../constants/apiContants";
+import {API_BASE_URL} from "../constants/apiContants";
 
-
-const token = localStorage.getItem("token");
 
 export const authAxios = axios.create({
     baseURL: API_BASE_URL,
@@ -11,8 +9,10 @@ export const authAxios = axios.create({
 
 authAxios.interceptors.request.use(req => {
     const token = localStorage.getItem("token");
+    console.log("TOKEN",token)
     if (token) {
         req.headers['Authorization'] = `Bearer ${token}`;
+        console.log(req.headers['Authorization'] )
     }
     return req
 });
