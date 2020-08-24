@@ -1,6 +1,7 @@
 {
   "registration": "Registration",
   "login": "Login",
+  "logout": "Log out",
   "language": "Select language",
   "surname": "Surname",
   "name": "Name",
@@ -26,7 +27,11 @@
   "question2": "Haven't registered yet?",
 
   "fileReason": "Uploading files",
-  "folderReason": "Uploading folders"
+  "folderReason": "Uploading folders",
+  "sentCode": "You have been sent a code. Check your phone.",
+  "noCode": "Didn't receive a code?",
+  "error_409": "This phone number was registered before. Login please!",
+  "error_401": "You gave entered non-existent number.Try again!"
 
 
 }

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useContext} from 'react';
 import clsx from 'clsx';
 import {useTheme} from '@material-ui/core/styles';
 import Drawer from '@material-ui/core/Drawer';
@@ -13,18 +13,17 @@ import MenuIcon from '@material-ui/icons/Menu';
 import ChevronLeftIcon from '@material-ui/icons/ChevronLeft';
 import ChevronRightIcon from '@material-ui/icons/ChevronRight';
 import ListItem from '@material-ui/core/ListItem';
-import ListItemIcon from '@material-ui/core/ListItemIcon';
 import ListItemText from '@material-ui/core/ListItemText';
-import InboxIcon from '@material-ui/icons/MoveToInbox';
-import MailIcon from '@material-ui/icons/Mail';
 import {useStyles} from "../../styles/styles";
 import "./Header.css"
 import LanguageSelect from "../LanguageSelectComponent/LanguageSelect";
-import {withRouter} from "react-router-dom";
-import {Link} from "react-router-dom";
+import {Link, withRouter} from "react-router-dom";
+import '../RegistrationComponent/RegistrationForm.css'
+import {I18nContext} from "../../i18n";
 
 
 function Header(props) {
+    const {translate} = useContext(I18nContext);
     const classes = useStyles()
     const theme = useTheme();
     const [open, setOpen] = React.useState(false);
@@ -36,8 +35,8 @@ function Header(props) {
         props.history.push("/login")
     }
 
-    function SideBar(props) {
-        if ((token)) {
+    function SideBar() {
+        if (token) {
             return <IconButton
                 color="inherit"
                 aria-label="open drawer"
@@ -46,10 +45,18 @@ function Header(props) {
                 className={clsx(classes.menuButton, open && classes.hide)}
             >
                 <MenuIcon/>
-                <button onClick={logout}>LogOUT</button>
             </IconButton>
 
-        } else return <div/>
+        } else {
+            setOpen(false);
+            return null;
+        }
+    }
+
+    function LogOut() {
+        if (token) {
+            return <button className="buttonStyle" onClick={logout}>{translate(('logout'))}</button>
+        } else return null
     }
 
     const handleDrawerOpen = () => {
@@ -59,11 +66,6 @@ function Header(props) {
     const handleDrawerClose = () => {
         setOpen(false);
     };
-
-    const redirectToUpload = () => {
-        props.updateTitle('Upload')
-        props.history.push('/upload');
-    }
 
     return (
         <div className={classes.root} id="root">
@@ -83,9 +85,11 @@ function Header(props) {
                     </div>
                     <div className="language">
                         <LanguageSelect/>
+                        <LogOut/>
                     </div>
                 </Toolbar>
             </AppBar>
+
             <Drawer
                 className={classes.drawer}
                 variant="persistent"
@@ -100,6 +104,7 @@ function Header(props) {
                         {theme.direction === 'ltr' ? <ChevronLeftIcon/> : <ChevronRightIcon/>}
                     </IconButton>
                 </div>
+
                 <Divider/>
                 <List>
                     <ListItem button component={Link} to="/questionnaire">
@@ -110,6 +115,7 @@ function Header(props) {
                     </ListItem>
                 </List>
                 <Divider/>
+
             </Drawer>
             <main
                 className={clsx(classes.content, {

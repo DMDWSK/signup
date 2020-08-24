@@ -8,14 +8,13 @@ import {store} from "../../redux/store"
 import {savePhoneNumber} from "../../redux/actions"
 import {API_BASE_URL} from "../../constants/apiContants";
 import {I18nContext} from "../../i18n";
-import {redirectToUpload,redirectToLogin} from "../../redirect/redirect"
+import {redirectToUpload, redirectToLogin} from "../../redirect/redirect"
+import Loader from 'react-loader-spinner'
 
 
 let today = new Date();
 today = today.getFullYear() + "-" + String(today.getMonth() + 1).padStart(2, '0') + "-"
     + String(today.getDate()).padStart(2, '0')
-
-
 
 
 function RegistrationForm(props) {
@@ -30,13 +29,14 @@ function RegistrationForm(props) {
         middleName: "",
         dateOfBirth: "",
         code: "",
-        payload: {
-            "username": ""
-        },
-        url: "auth/token",
-        disabled: false,
+
+        payload: {"username": ""},
+        url: "auth/token/signup",
         buttonDisabled: true,
+        buttonLabel: translate(('getCode')),
+        disabled: false,
         hidden: true,
+        loaderHidden: true,
         successMessage: null
     })
 
@@ -50,53 +50,64 @@ function RegistrationForm(props) {
     }
 
     const handleChangePhoneNumber = (value) => {
-
-        state.username = value
-
+        if (value.length < 12) {
+            setState(prevState => (
+                {
+                    ...prevState,
+                    buttonDisabled: true
+                }
+            ));
+        } else {
+            setState(prevState => (
+                {
+                    ...prevState,
+                    buttonDisabled: false,
+                    username: value
+                }
+            ));
+        }
     }
 
     const handleChangeInitials = (event) => {
-        // if ((!isEmpty(event.target.value.length))) {
-            if (event.target.value.match("^[аА-яЯєЄіIїЇґҐa-zA-Z]*$") != null) {
-                const {id, value} = event.target
-                setState(prevState => ({
-                    ...prevState,
-                    [id]: value.charAt(0).toUpperCase() + value.slice(1),
-                    buttonDisabled: false,
-                }))
-                setState(prevState => ({
-                    ...prevState,
-                    buttonDisabled: false,
-                }))
-            }
-        // } else {
-        //     setState(prevState => ({
-        //         ...prevState,
-        //         buttonDisabled: true,
-        //     }))
-        // }
+        if (event.target.value.match("^[аА-яЯєЄіIїЇґҐa-zA-Z]*$") != null) {
+            const {id, value} = event.target
+            setState(prevState => ({
+                ...prevState,
+                [id]: value.charAt(0).toUpperCase() + value.slice(1),
+                disabled: false,
+            }))
+        }
     }
 
     const handleUserEmail = (event) => {
-        // if (event.target.value.match("^\\w+([\\.-]?\\w+)*@\\w+([\\.-]?\\w+)*(\\.\\w{2,})+$")!= null) {
-        const {id, value} = event.target
-        setState(prevState => ({
-            ...prevState,
-            [id]: value
-        }))
-        // }
+        if (event.target.value.match("^\\w+([\\.-]?\\w+)*@\\w+([\\.-]?\\w+)*(\\.\\w{2,})+$") !== null) {
+            setState(prevState => ({
+                ...prevState,
+                email: event.target.value,
+            }))
+        }
     }
 
     const handleChangeCode = (event) => {
         const {id, value} = event.target
         setState(prevState => ({
             ...prevState,
+            buttonDisabled: false,
             [id]: value
         }))
+
+    }
+
+    const handleChangeLoader = () => {
+        setState(prevState => (
+            {
+                ...prevState,
+                loaderHidden: false
+            }))
     }
 
     const getToken = () => {
-
+        handleChangeLoader()
         let payload = {
             "username": state.username
         }
@@ -107,17 +118,20 @@ function RegistrationForm(props) {
                     {
                         ...prevState,
                         hidden: false,
-                        disabled: true,
+                        buttonDisabled: true,
                         url: "auth/signup",
-                        'successMessage': 'Вам надіслано код на ваш номер телефону'
+                        'successMessage': translate(('sentCode')),
+                        disabled: true,
+                        buttonLabel: translate(('signUp'))
                     }
                 ))
             })
             .catch(function (error) {
                 if (error.response.status === 409) {
-                    dispatch(savePhoneNumber(state.payload.username))
-                    props.showError("Даний номер телефону зареєстрований у нашій базі. Увійдіть!")
-                    redirectToLogin();
+                    dispatch(savePhoneNumber(state.username))
+                    console.log(state.username)
+                    props.showError(translate(('error_409')))
+                    redirectToLogin(props);
 
                 }
             });
@@ -146,13 +160,6 @@ function RegistrationForm(props) {
                 localStorage.setItem("token", response.data.accessToken)
                 redirectToUpload(props);
             })
-            .catch(function (error) {
-                if (error.response.status === 409) {
-                    dispatch(savePhoneNumber(state.payload.username))
-                    props.showError("Даний номер телефону зареєстрований у нашій базі. Увійдіть!")
-                    redirectToLogin(props);
-                }
-            });
     }
 
     const handleSubmitClick = (e) => {
@@ -223,7 +230,7 @@ function RegistrationForm(props) {
                         country={'ua'}
                         value={state.username}
                         onChange={handleChangePhoneNumber}
-                        disabled={state.disabled}
+                        buttonDisabled={state.disabled}
                         required="true"
                     />
                 </div>
@@ -257,12 +264,26 @@ function RegistrationForm(props) {
                     type="submit"
                     className="buttonStyle"
                     onClick={handleSubmitClick}
-                    // disabled={state.buttonDisabled}
+                    disabled={!state.lastName || !state.firstName || !state.middleName || !state.dateOfBirth || state.buttonDisabled}
                 >
-                    {translate(('signUp'))}
+                    {state.buttonLabel}
                 </button>
-
             </form>
+
+
+            <div
+                onChange={handleChangeLoader}>
+                {state.loaderHidden ? null
+                    : <Loader
+                        type="TailSpin"
+                        color="#3f51b5"
+                        height={100}
+                        width={50}
+                        timeout={800}
+                    />}
+
+            </div>
+
             <div className="alert alert-success mt-2" style={{display: state.successMessage ? 'block' : 'none'}}
                  role="alert">
                 {state.successMessage}
@@ -270,6 +291,11 @@ function RegistrationForm(props) {
             <div className="mt-2">
                 <span>{translate(('question'))}</span>
                 <span className="loginText" onClick={() => redirectToLogin(props)}> {translate(('signIn'))}</span>
+            </div>
+
+            <div className="mt-2">
+                <span className="sentCode" hidden={state.hidden}
+                      onClick={() => getToken()}> {translate(('noCode'))}</span>
             </div>
 
         </div>

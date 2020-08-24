@@ -20,13 +20,15 @@ function LoginForm(props) {
     const [state, setState] = useState({
         username: "",
         password: "",
+
         payload: {
             "username": ""
         },
-        url: "auth/token",
+        url: "auth/token/signin",
         disabled: false,
+        buttonDisabled: true,
         hidden: true,
-        buttonLabel: "Отримати код",
+        // buttonLabel: "Отримати код",
         successMessage: null
     })
 
@@ -36,7 +38,23 @@ function LoginForm(props) {
     }
 
     const handleChangePhoneNumber = (value) => {
-        state.username = value
+        if (value.length < 12) {
+            console.log(state.disabled)
+            setState(prevState => (
+                {
+                    ...prevState,
+                    buttonDisabled: true
+                }
+            ));
+        } else {
+            setState(prevState => (
+                {
+                    ...prevState,
+                    buttonDisabled: false,
+                    username: value
+                }
+            ));
+        }
     }
 
     const handleChangePassword = (event) => {
@@ -60,14 +78,13 @@ function LoginForm(props) {
                         hidden: false,
                         disabled: true,
                         url: "auth/signin",
-                        'successMessage': 'Вам надіслано код на ваш номер телефону'
+                        'successMessage':  translate(('sentCode'))
                     }
                 ))
             })
             .catch(function (error) {
-                if (error.response.status === 401) {
-                    dispatch(savePhoneNumber(state.payload.username))
-                    props.showError("Ви ввели неіснуючий номер.Перевірте будь ласка ще раз!")
+                if (error.response.status === 401)   {
+                    props.showError(translate(('error_401')))
 
                 }
             });
@@ -93,7 +110,12 @@ function LoginForm(props) {
                 localStorage.setItem("token", response.data.accessToken)
                 console.log(response.data.accessToken)
                 redirectToUpload(props);
-            })
+            }).catch(function (error) {
+            if (error.response.status === 401)   {
+                props.showError(translate(('error_401')))
+
+            }
+        });
     }
 
     const handleSubmitClick = (e) => {
@@ -125,7 +147,6 @@ function LoginForm(props) {
                     <input type="text"
                            className="form-control"
                            id="password"
-                           placeholder="Введіть отриманий код"
                            value={state.password}
                            onChange={handleChangePassword}
                     />
@@ -135,7 +156,8 @@ function LoginForm(props) {
                     type="submit"
                     className="buttonStyle"
                     onClick={handleSubmitClick}
-                >{translate(('getCode'))}
+                    disabled={state.buttonDisabled}
+                >{translate(('signIn'))}
                 </button>
             </form>
             <div className="alert alert-success mt-2" style={{display: state.successMessage ? 'block' : 'none'}}

@@ -4,29 +4,46 @@
     cursor: pointer;
 }
 
+.sentCode {
+    color: blue;
+    cursor: pointer;
+}
+
 .successMessage {
     color: #174a17;
     font-weight: bold;
 }
-.buttonStyle{
-    display:inline-block;
-    padding:0.7em 1.4em;
-    margin:0 0.3em 0.3em 0;
-    border-radius:0.15em;
-   box-sizing: border-box;
-   text-decoration:none;
-    font-family:'Roboto',sans-serif;
-    text-transform:uppercase;
-    font-weight:400;
-    color:#FFFFFF;
-    background-color:#3f51b5;
-    box-shadow:inset 0 -0.6em 0 -0.35em rgba(0,0,0,0.17);
-    text-align:center;
-    position:relative;
+
+.buttonStyle {
+    display: inline-block;
+    padding: 0.7em 1.4em;
+    margin: 0 0.3em 0.3em 0;
+    border-radius: 0.15em;
+    box-sizing: border-box;
+    text-decoration: none;
+    font-family: 'Roboto', sans-serif;
+    text-transform: uppercase;
+    font-weight: 400;
+    color: #FFFFFF;
+    background-color: #3f51b5;
+    box-shadow: inset 0 -0.6em 0 -0.35em rgba(0, 0, 0, 0.17);
+    text-align: center;
+    position: relative;
     cursor: pointer
 }
 
-#categoryName{
+:disabled,
+button[disabled] {
+    border: 1px solid #c8c3c3;
+    background-color: #cccccc;
+    color: #666666;
+}
+
+
+#categoryName {
     cursor: context-menu;
 }
-body {background-color: #f8f5f5;}
+
+body {
+    background-color: #f8f5f5;
+}

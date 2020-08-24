@@ -52,12 +52,12 @@ function UploadFiles(props) {
                 setUploadedFiles(response.data);
                 setUploadedFolder(response.data);
                 setUploadedDrag(response.data);
+                console.log(response)
                 setProgress(0)
             })
             .catch(function (error) {
                 if (error.response.status === 401) {
-                    redirectToLogin(props)
-
+                    redirectToLogin(props) 
                 }
             });
     };
@@ -88,7 +88,7 @@ function UploadFiles(props) {
                     <Col sm="6">
                         <Card body>
                             <CardText>{translate(('folderReason'))}</CardText>
-                            <input className="buttonStyle" name="upload/dicom" type="file" onChange={selectFile}
+                            <input className="buttonStyle" url="upload/dicom" type="file" onChange={selectFile}
                                    directory="" webkitdirectory=""
                                    mozdirectory=""
                                    multiple
@@ -112,10 +112,11 @@ function UploadFiles(props) {
                     <Dropzone onDrop={handleDrop}>
                         {({getRootProps, getInputProps}) => (
                             <div{...getRootProps({className: "dropzone"})}>
-                                <input {...getInputProps()} name="upload/all" onChange={selectFile} style={{
+                                <input {...getInputProps()} name="upload/all" onChange={selectFile.u} style={{
                                     height: "200px",
                                     width: "100%",
                                     visibility: "hidden",
+                                    value: "value0,"
                                 }}/>
                             </div>
                         )}
