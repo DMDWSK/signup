@@ -10,6 +10,8 @@ import {API_BASE_URL} from "../../constants/apiContants";
 import {I18nContext} from "../../i18n";
 import {redirectToUpload, redirectToLogin} from "../../redirect/redirect"
 import Loader from 'react-loader-spinner'
+import RefreshIcon from "@material-ui/icons/Refresh";
+import { Redirect } from "react-router-dom";
 
 
 let today = new Date();
@@ -18,6 +20,7 @@ today = today.getFullYear() + "-" + String(today.getMonth() + 1).padStart(2, '0'
 
 
 function RegistrationForm(props) {
+    const token = localStorage.getItem("token")
     const {translate} = useContext(I18nContext);
     const dispatch = useDispatch();
     const [checked, setChecked] = useState(false);
@@ -33,13 +36,17 @@ function RegistrationForm(props) {
         payload: {"username": ""},
         url: "auth/token/signup",
         buttonDisabled: true,
-        buttonLabel: translate(('getCode')),
         disabled: false,
         hidden: true,
         loaderHidden: true,
         successMessage: null
     })
+    let buttonLabel = translate(('getCode'));
 
+    function ifLogged() {
+        let url = window.location.href.split('/').slice(-1)[0]
+        return !(url === "" && token);
+    }
 
     const handleChangeBirthDate = (event) => {
         const {id, value} = event.target
@@ -54,7 +61,7 @@ function RegistrationForm(props) {
             setState(prevState => (
                 {
                     ...prevState,
-                    buttonDisabled: true
+                    buttonDisabled: false
                 }
             ));
         } else {
@@ -107,12 +114,17 @@ function RegistrationForm(props) {
     }
 
     const getToken = () => {
+        setState(prevState => ({
+            ...prevState,
+            url: "auth/token/signup",
+        }))
         handleChangeLoader()
         let payload = {
             "username": state.username
         }
         axios.post(API_BASE_URL + state.url, payload)
             .then(function () {
+                buttonLabel = translate(('signUp'))
                 setChecked(true);
                 setState(prevState => (
                     {
@@ -122,14 +134,12 @@ function RegistrationForm(props) {
                         url: "auth/signup",
                         'successMessage': translate(('sentCode')),
                         disabled: true,
-                        buttonLabel: translate(('signUp'))
                     }
                 ))
             })
             .catch(function (error) {
                 if (error.response.status === 409) {
-                    dispatch(savePhoneNumber(state.username))
-                    console.log(state.username)
+                    dispatch(savePhoneNumber(state.username));
                     props.showError(translate(('error_409')))
                     redirectToLogin(props);
 
@@ -162,6 +172,25 @@ function RegistrationForm(props) {
             })
     }
 
+    const handleRefresh = (e) => {
+        e.preventDefault();
+        setChecked(false);
+        setState(prevState => (
+            {
+                ...prevState,
+                username: "",
+                password: "",
+                payload: {
+                    "username": ""
+                },
+                url: "auth/token/signup",
+                disabled: false,
+                hidden: true,
+                successMessage: null
+            }
+        ));
+    }
+
     const handleSubmitClick = (e) => {
         e.preventDefault();
         if (checked) {
@@ -171,7 +200,7 @@ function RegistrationForm(props) {
         }
     }
 
-    return (
+    if (ifLogged() === true) return (
         <div className="card col-12 col-lg-4 login-card mt-2 hv-center" id="signUp">
             <div id="categoryName" className="card-header">{translate(('registration'))}</div>
             <form>
@@ -183,7 +212,6 @@ function RegistrationForm(props) {
                            placeholder={translate(('enterSurname'))}
                            value={state.lastName}
                            onChange={handleChangeInitials}
-                           required="true"
                     />
                 </div>
 
@@ -195,7 +223,6 @@ function RegistrationForm(props) {
                            placeholder={translate(('enterName'))}
                            value={state.firstName}
                            onChange={handleChangeInitials}
-                           required="true"
                     />
                 </div>
 
@@ -207,7 +234,6 @@ function RegistrationForm(props) {
                            placeholder={translate(('enterMiddleName'))}
                            value={state.middleName}
                            onChange={handleChangeInitials}
-                           required="true"
                     />
                 </div>
 
@@ -220,7 +246,6 @@ function RegistrationForm(props) {
                            onChange={handleChangeBirthDate}
                            min="1900-01-01"
                            max={today}
-                           required="true"
                     />
                 </div>
 
@@ -231,7 +256,6 @@ function RegistrationForm(props) {
                         value={state.username}
                         onChange={handleChangePhoneNumber}
                         buttonDisabled={state.disabled}
-                        required="true"
                     />
                 </div>
 
@@ -256,7 +280,6 @@ function RegistrationForm(props) {
                            placeholder={translate(('enterCode'))}
                            value={state.code}
                            onChange={handleChangeCode}
-                           required="true"
                     />
                 </div>
 
@@ -266,10 +289,15 @@ function RegistrationForm(props) {
                     onClick={handleSubmitClick}
                     disabled={!state.lastName || !state.firstName || !state.middleName || !state.dateOfBirth || state.buttonDisabled}
                 >
-                    {state.buttonLabel}
+                    {buttonLabel}
                 </button>
             </form>
 
+            <RefreshIcon
+                className="refreshIcon"
+                hidden={state.hidden}
+                onClick={handleRefresh}
+            />
 
             <div
                 onChange={handleChangeLoader}>
@@ -292,14 +320,12 @@ function RegistrationForm(props) {
                 <span>{translate(('question'))}</span>
                 <span className="loginText" onClick={() => redirectToLogin(props)}> {translate(('signIn'))}</span>
             </div>
-
-            <div className="mt-2">
-                <span className="sentCode" hidden={state.hidden}
-                      onClick={() => getToken()}> {translate(('noCode'))}</span>
-            </div>
-
         </div>
     )
+    else return (<Redirect
+        to={{
+            pathname: "/upload",
+        }}/>)
 }
 
 export default withRouter(RegistrationForm);

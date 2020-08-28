@@ -7,15 +7,15 @@ import {useDispatch, useSelector} from "react-redux";
 import {API_BASE_URL} from "../../constants/apiContants";
 import {I18nContext} from "../../i18n";
 import {savePhoneNumber} from "../../redux/actions";
-import Redirect from "react-router-dom/es/Redirect";
+import { Redirect } from "react-router-dom";
 import {redirectToRegister, redirectToUpload} from "../../redirect/redirect"
+import RefreshIcon from '@material-ui/icons/Refresh';
 
 
 function LoginForm(props) {
     const token = localStorage.getItem("token")
     const {translate} = useContext(I18nContext);
     const value = useSelector(state => state.phone[0])
-    const dispatch = useDispatch();
     const [checked, setChecked] = useState(false);
     const [state, setState] = useState({
         username: "",
@@ -28,7 +28,7 @@ function LoginForm(props) {
         disabled: false,
         buttonDisabled: true,
         hidden: true,
-        // buttonLabel: "Отримати код",
+        buttonLabel: translate(('getCode')),
         successMessage: null
     })
 
@@ -78,12 +78,13 @@ function LoginForm(props) {
                         hidden: false,
                         disabled: true,
                         url: "auth/signin",
-                        'successMessage':  translate(('sentCode'))
+                        'successMessage': translate(('sentCode')),
+                        buttonLabel: translate(('signIn'))
                     }
                 ))
             })
             .catch(function (error) {
-                if (error.response.status === 401)   {
+                if (error.response.status === 401) {
                     props.showError(translate(('error_401')))
 
                 }
@@ -110,12 +111,27 @@ function LoginForm(props) {
                 localStorage.setItem("token", response.data.accessToken)
                 console.log(response.data.accessToken)
                 redirectToUpload(props);
-            }).catch(function (error) {
-            if (error.response.status === 401)   {
-                props.showError(translate(('error_401')))
+            })
+    }
 
+    const handleRefresh = (e) => {
+        console.log("REFRESH")
+        e.preventDefault();
+        setChecked(false);
+        setState(prevState => (
+            {
+                ...prevState,
+                password: "",
+                payload: {
+                    "username": ""
+                },
+                url: "auth/token/signin",
+                disabled: false,
+                hidden: true,
+                buttonLabel: translate(('getCode')),
+                successMessage: null
             }
-        });
+        ));
     }
 
     const handleSubmitClick = (e) => {
@@ -157,9 +173,16 @@ function LoginForm(props) {
                     className="buttonStyle"
                     onClick={handleSubmitClick}
                     disabled={state.buttonDisabled}
-                >{translate(('signIn'))}
+                >{state.buttonLabel}
                 </button>
             </form>
+
+            <RefreshIcon
+                className="refreshIcon"
+                hidden={state.hidden}
+                onClick={handleRefresh}
+            />
+
             <div className="alert alert-success mt-2" style={{display: state.successMessage ? 'block' : 'none'}}
                  role="alert">
                 {state.successMessage}
@@ -167,6 +190,10 @@ function LoginForm(props) {
             <div className="registerMessage">
                 <span>{translate(('question2'))}</span>
                 <span className="loginText" onClick={() => redirectToRegister(props)}> {translate(('signUp'))}</span>
+            </div>
+            <div className="mt-2">
+                <span className="sentCode" hidden={state.hidden}
+                      onClick={() => getToken()}> {translate(('noCode'))}</span>
             </div>
         </div>
     )

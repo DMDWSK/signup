@@ -4,7 +4,7 @@ import {materialRenderers, materialCells} from '@jsonforms/material-renderers';
 import "./Questionnaire.css"
 import React from 'react';
 import responseGenerator from "../FhirFormsComponent/ResponseGenerator";
-import Redirect from "react-router-dom/es/Redirect";
+import { Redirect } from "react-router-dom";
 
 function Questionnaire() {
     const schema = coreSchema.schema

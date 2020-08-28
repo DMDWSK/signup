@@ -9,13 +9,17 @@ import {useStyles} from "../../styles/styles";
 import {withRouter} from "react-router-dom";
 import {redirectToLogin} from "../../redirect/redirect";
 import {I18nContext} from "../../i18n";
-import Redirect from "react-router-dom/es/Redirect";
+import {Redirect} from "react-router-dom";
+import {configureStore} from "@reduxjs/toolkit";
+import Toast from 'react-bootstrap/Toast'
+import ToastHeader from 'react-bootstrap/ToastHeader'
 
 
 function UploadFiles(props) {
     const classes = useStyles();
     const formData = new FormData;
     const token = localStorage.getItem("token")
+    const [showA, setShowA] = useState(true);
 
     const {translate} = useContext(I18nContext);
     const [currentFile, setCurrentFile] = useState(undefined);
@@ -31,8 +35,9 @@ function UploadFiles(props) {
         return !!token;
     }
 
-    const selectFile = (event) => {
-        let currentFile = event.target.files;
+
+    const selectFile = (e, url, array = []) => {
+        let currentFile = e.target.files;
         let uploadedData = formData.getAll('file');
         uploadedData.forEach(function (item, index, object) {
             if (item.size > 50000000000) {
@@ -45,22 +50,24 @@ function UploadFiles(props) {
         setProgress(0);
         setCurrentFile(currentFile);
 
-        UploadService.upload(currentFile, event.target.name, (event) => {
-            setProgress(Math.round((100 * event.loaded) / event.total));
+        UploadService.upload(currentFile, url, (e) => {
+            setProgress(Math.round((100 * e.loaded) / e.total));
         })
             .then(function (response) {
-                setUploadedFiles(response.data);
-                setUploadedFolder(response.data);
-                setUploadedDrag(response.data);
                 console.log(response)
+                Object.values(response.data).forEach(value => {
+                    array.push(value)
+                })
                 setProgress(0)
             })
-            .catch(function (error) {
-                if (error.response.status === 401) {
-                    redirectToLogin(props) 
-                }
-            });
+            // .catch(function (error) {
+            //     if (error.response.status === 401) {
+            //         redirectToLogin(props)
+            //     }
+            // });
     };
+
+    const toggleShowA = () => setShowA(!showA);
 
     if (ifLogged() === true)
         return (
@@ -68,9 +75,12 @@ function UploadFiles(props) {
                 <Row>
                     <Col sm="6">
                         <Card body>
-                            <CardText>{translate(('fileReason'))}</CardText>
-                            <input className="buttonStyle" name="upload/files" type="file" multiple
-                                   onChange={selectFile}/>
+                            <label className="labelUpload" htmlFor="fileUpload">
+                                {translate(('uploadFile'))}
+                            </label>
+                            <input className="buttonStyle" type="file" multiple
+                                   id="fileUpload"
+                                   onChange={e => selectFile(e, "upload/files", uploadedFiles, setUploadedFiles)}/>
                             <List className={classes.root} subheader={<li/>}>
                                 <li className={classes.listSection}>
                                     <ul className={classes.ul}>
@@ -87,8 +97,12 @@ function UploadFiles(props) {
 
                     <Col sm="6">
                         <Card body>
-                            <CardText>{translate(('folderReason'))}</CardText>
-                            <input className="buttonStyle" url="upload/dicom" type="file" onChange={selectFile}
+                            <label className="labelUpload" htmlFor="folderUpload">
+                                {translate(('uploadFolder'))}
+                            </label>
+                            <input className="buttonStyle" type="file"
+                                   id="folderUpload"
+                                   onChange={e => selectFile(e, "upload/dicom", uploadedFolder, setUploadedFolder)}
                                    directory="" webkitdirectory=""
                                    mozdirectory=""
                                    multiple
@@ -98,8 +112,10 @@ function UploadFiles(props) {
                                     <ul className={classes.ul}>
                                         {uploadedFolder.map((item) => (
                                             <ListItem>
-                                                <ListItemText primary={`${item}`}/>
+                                                <ListItemText primary={`${Object.keys(item)}`}/>
+                                                <ListItemText primary={`${Object.values(item)}`}/>
                                             </ListItem>
+                                            // console.log(item)
                                         ))}
                                     </ul>
                                 </li>
@@ -108,21 +124,25 @@ function UploadFiles(props) {
                     </Col>
                 </Row>
 
-                <Card className={classes.cardStyle}>
-                    <Dropzone onDrop={handleDrop}>
-                        {({getRootProps, getInputProps}) => (
-                            <div{...getRootProps({className: "dropzone"})}>
-                                <input {...getInputProps()} name="upload/all" onChange={selectFile.u} style={{
-                                    height: "200px",
-                                    width: "100%",
-                                    visibility: "hidden",
-                                    value: "value0,"
-                                }}/>
-                            </div>
-                        )}
-                    </Dropzone>
 
-                </Card>
+                {/*<Card className={classes.cardStyle}>*/}
+                {/*    <Dropzone onDrop={ha
+                ndleDrop}>*/}
+                {/*        {({getRootProps, getInputProps}) => (*/}
+                {/*            <div{...getRootProps({className: "dropzone"})}>*/}
+                {/*                <input {...getInputProps()}*/}
+                {/*                       onChange={e => selectFile(e, "upload/all", uploadedDrag, setUploadedDrag)}*/}
+                {/*                       style={{*/}
+                {/*                           height: "200px",*/}
+                {/*                           width: "100%",*/}
+                {/*                           visibility: "hidden",*/}
+                {/*                           value: "value0,"*/}
+                {/*                       }}/>*/}
+                {/*            </div>*/}
+                {/*        )}*/}
+                {/*    </Dropzone>*/}
+
+                {/*</Card>*/}
                 <List className={classes.dragUpload} subheader={<li/>}>
                     <li className={classes.listSection}>
                         <ul className={classes.ul}>
@@ -148,6 +168,23 @@ function UploadFiles(props) {
                         </div>
                     </div>
                 )}
+                <Col xs={6}>
+                    <Toast show={showA} onClose={toggleShowA}
+                           className="toastCard">
+                        <ToastHeader>
+
+
+                            <strong className="mr-auto">Bootstrap</strong>
+                            <small>11 mins ago</small>
+                        </ToastHeader>
+                        <Toast.Body>Woohoo, you're reading this text in a Toast!</Toast.Body>
+                    </Toast>
+                </Col>
+                <Col xs={6}>
+                    <button onClick={toggleShowA}>
+                        Toggle Toast <strong>with</strong> Animation
+                    </button>
+                </Col>
             </div>
         );
     else return (<Redirect

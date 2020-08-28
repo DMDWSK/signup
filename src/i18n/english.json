@@ -26,12 +26,11 @@
   "getCode": "Get code",
   "question2": "Haven't registered yet?",
 
-  "fileReason": "Uploading files",
-  "folderReason": "Uploading folders",
   "sentCode": "You have been sent a code. Check your phone.",
   "noCode": "Didn't receive a code?",
   "error_409": "This phone number was registered before. Login please!",
-  "error_401": "You gave entered non-existent number.Try again!"
+  "error_401": "You have entered non-existent number.Try again!",
 
-
+  "uploadFile": "Upload images/documents",
+  "uploadFolder": "Upload examination/disk"
 }
