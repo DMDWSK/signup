@@ -4,14 +4,16 @@ import './RegistrationForm.css';
 import PhoneInput from "react-phone-input-2";
 import {withRouter} from "react-router-dom";
 import {useDispatch} from 'react-redux';
-import {store} from "../../redux/store"
 import {savePhoneNumber} from "../../redux/actions"
 import {API_BASE_URL} from "../../constants/apiContants";
 import {I18nContext} from "../../i18n";
 import {redirectToUpload, redirectToLogin} from "../../redirect/redirect"
 import Loader from 'react-loader-spinner'
 import RefreshIcon from "@material-ui/icons/Refresh";
-import { Redirect } from "react-router-dom";
+import {Redirect} from "react-router-dom";
+import {addToken, getToken} from "../../token/tokenOperations";
+import {NotificationManager} from "react-notifications";
+
 
 
 let today = new Date();
@@ -20,7 +22,7 @@ today = today.getFullYear() + "-" + String(today.getMonth() + 1).padStart(2, '0'
 
 
 function RegistrationForm(props) {
-    const token = localStorage.getItem("token")
+    const token = getToken()
     const {translate} = useContext(I18nContext);
     const dispatch = useDispatch();
     const [checked, setChecked] = useState(false);
@@ -38,8 +40,6 @@ function RegistrationForm(props) {
         buttonDisabled: true,
         disabled: false,
         hidden: true,
-        loaderHidden: true,
-        successMessage: null
     })
     let buttonLabel = translate(('getCode'));
 
@@ -105,25 +105,17 @@ function RegistrationForm(props) {
 
     }
 
-    const handleChangeLoader = () => {
-        setState(prevState => (
-            {
-                ...prevState,
-                loaderHidden: false
-            }))
-    }
-
-    const getToken = () => {
+    const receiveToken = () => {
         setState(prevState => ({
             ...prevState,
             url: "auth/token/signup",
         }))
-        handleChangeLoader()
         let payload = {
             "username": state.username
         }
         axios.post(API_BASE_URL + state.url, payload)
             .then(function () {
+                NotificationManager.success(translate(('sentCode')))
                 buttonLabel = translate(('signUp'))
                 setChecked(true);
                 setState(prevState => (
@@ -132,7 +124,6 @@ function RegistrationForm(props) {
                         hidden: false,
                         buttonDisabled: true,
                         url: "auth/signup",
-                        'successMessage': translate(('sentCode')),
                         disabled: true,
                     }
                 ))
@@ -140,7 +131,7 @@ function RegistrationForm(props) {
             .catch(function (error) {
                 if (error.response.status === 409) {
                     dispatch(savePhoneNumber(state.username));
-                    props.showError(translate(('error_409')))
+                    NotificationManager.error(translate(('error_401')))
                     redirectToLogin(props);
 
                 }
@@ -164,10 +155,9 @@ function RegistrationForm(props) {
                     {
                         ...prevState,
                         url: "auth/signup",
-                        'successMessage': 'Ви були успішно зареєстровані'
                     }
                 ))
-                localStorage.setItem("token", response.data.accessToken)
+                addToken(response.data.accessToken)
                 redirectToUpload(props);
             })
     }
@@ -186,7 +176,6 @@ function RegistrationForm(props) {
                 url: "auth/token/signup",
                 disabled: false,
                 hidden: true,
-                successMessage: null
             }
         ));
     }
@@ -196,7 +185,7 @@ function RegistrationForm(props) {
         if (checked) {
             signUp()
         } else {
-            getToken()
+            receiveToken()
         }
     }
 
@@ -299,23 +288,6 @@ function RegistrationForm(props) {
                 onClick={handleRefresh}
             />
 
-            <div
-                onChange={handleChangeLoader}>
-                {state.loaderHidden ? null
-                    : <Loader
-                        type="TailSpin"
-                        color="#3f51b5"
-                        height={100}
-                        width={50}
-                        timeout={800}
-                    />}
-
-            </div>
-
-            <div className="alert alert-success mt-2" style={{display: state.successMessage ? 'block' : 'none'}}
-                 role="alert">
-                {state.successMessage}
-            </div>
             <div className="mt-2">
                 <span>{translate(('question'))}</span>
                 <span className="loginText" onClick={() => redirectToLogin(props)}> {translate(('signIn'))}</span>

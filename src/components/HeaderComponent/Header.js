@@ -20,6 +20,7 @@ import LanguageSelect from "../LanguageSelectComponent/LanguageSelect";
 import {Link, withRouter} from "react-router-dom";
 import '../RegistrationComponent/RegistrationForm.css'
 import {I18nContext} from "../../i18n";
+import {getToken, removeToken} from "../../token/tokenOperations";
 
 
 function Header(props) {
@@ -27,11 +28,11 @@ function Header(props) {
     const classes = useStyles()
     const theme = useTheme();
     const [open, setOpen] = React.useState(false);
-    const token = localStorage.getItem("token")
+    const token = getToken();
 
     const logout = (e) => {
         e.preventDefault();
-        localStorage.removeItem("token")
+        removeToken();
         props.history.push("/login")
     }
 
@@ -85,6 +86,8 @@ function Header(props) {
                     </div>
                     <div className="language">
                         <LanguageSelect/>
+                    </div>
+                    <div className="logout">
                         <LogOut/>
                     </div>
                 </Toolbar>
@@ -106,12 +109,12 @@ function Header(props) {
                 </div>
 
                 <Divider/>
-                <List>
+                <List onClick={handleDrawerClose}>
                     <ListItem button component={Link} to="/questionnaire">
-                        <ListItemText primary="Questionnaire"/>
+                        <ListItemText primary={translate(('questionnaire'))}/>
                     </ListItem>
                     <ListItem button component={Link} to="/upload">
-                        <ListItemText primary="Upload"/>
+                        <ListItemText primary={translate(('upload'))}/>
                     </ListItem>
                 </List>
                 <Divider/>

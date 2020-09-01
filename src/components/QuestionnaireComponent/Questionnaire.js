@@ -1,17 +1,20 @@
 import {JsonForms} from '@jsonforms/react';
 import {coreSchema} from "../../JSON/exampleSchema";
-import {materialRenderers, materialCells} from '@jsonforms/material-renderers';
+import {materialCells, materialRenderers} from '@jsonforms/material-renderers';
 import "./Questionnaire.css"
-import React from 'react';
+import React, {useContext} from 'react';
 import responseGenerator from "../FhirFormsComponent/ResponseGenerator";
-import { Redirect } from "react-router-dom";
+import {Redirect} from "react-router-dom";
+import {getToken} from "../../token/tokenOperations";
+import {I18nContext} from "../../i18n";
 
 function Questionnaire() {
+    const {translate} = useContext(I18nContext);
     const schema = coreSchema.schema
     const uiSchema = coreSchema.ui
     const data = coreSchema.data;
     let stateData;
-    const token = localStorage.getItem("token")
+    const token = getToken();
 
     function ifLogged() {
         return !!token;
@@ -117,9 +120,9 @@ function Questionnaire() {
                 />
                 <button
                     type="submit"
-                    className="btn btn-primary"
+                    className="buttonStyle"
                     onClick={handleSubmitClick}
-                >Надіслати
+                >{translate(('send'))}
                 </button>
             </div>
         );

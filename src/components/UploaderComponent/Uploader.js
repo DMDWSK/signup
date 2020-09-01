@@ -1,73 +1,63 @@
 import React, {useContext, useState} from "react";
-import {Card, CardText, Col, Row} from "reactstrap";
+import {Card, Col, Row} from "reactstrap";
 import UploadService from "../../services/UploaderService";
-import Dropzone from "react-dropzone";
 import List from '@material-ui/core/List';
-import ListItem from '@material-ui/core/ListItem';
-import ListItemText from '@material-ui/core/ListItemText';
 import {useStyles} from "../../styles/styles";
-import {withRouter} from "react-router-dom";
-import {redirectToLogin} from "../../redirect/redirect";
+import {Redirect, withRouter} from "react-router-dom";
 import {I18nContext} from "../../i18n";
-import {Redirect} from "react-router-dom";
-import {configureStore} from "@reduxjs/toolkit";
 import Toast from 'react-bootstrap/Toast'
 import ToastHeader from 'react-bootstrap/ToastHeader'
+import './Uploader.css';
+import 'react-notifications/lib/notifications.css';
+import 'react-notifications-component/dist/theme.css'
+import {getToken} from "../../token/tokenOperations";
 
 
-function UploadFiles(props) {
+function UploadFiles() {
     const classes = useStyles();
     const formData = new FormData;
-    const token = localStorage.getItem("token")
-    const [showA, setShowA] = useState(true);
+    const token = getToken();
+    const [notification, setNotification] = useState(true);
+    const [hiddenProgress, setHideProgress] = useState(false)
 
     const {translate} = useContext(I18nContext);
     const [currentFile, setCurrentFile] = useState(undefined);
     const [progress, setProgress] = useState(0);
     const [uploadedFiles, setUploadedFiles] = useState([]);
     const [uploadedFolder, setUploadedFolder] = useState([]);
-    const [uploadedDrag, setUploadedDrag] = useState([]);
-    const [fileNames, setFileNames] = useState([]);
-    const handleDrop = acceptedFiles =>
-        setFileNames(acceptedFiles.map(file => file.name));
 
     function ifLogged() {
         return !!token;
     }
 
-
     const selectFile = (e, url, array = []) => {
         let currentFile = e.target.files;
         let uploadedData = formData.getAll('file');
         uploadedData.forEach(function (item, index, object) {
-            if (item.size > 50000000000) {
+            if (item.size > 50) {
                 object.splice(index, 1)
                 currentFile = object
             } else {
                 currentFile = uploadedData;
             }
         })
-        setProgress(0);
+        setHideProgress(false);
+        setNotification(true)
         setCurrentFile(currentFile);
 
         UploadService.upload(currentFile, url, (e) => {
             setProgress(Math.round((100 * e.loaded) / e.total));
         })
             .then(function (response) {
-                console.log(response)
                 Object.values(response.data).forEach(value => {
                     array.push(value)
                 })
+                setHideProgress(true);
                 setProgress(0)
             })
-            // .catch(function (error) {
-            //     if (error.response.status === 401) {
-            //         redirectToLogin(props)
-            //     }
-            // });
     };
 
-    const toggleShowA = () => setShowA(!showA);
+    const hideNotification = () => setNotification(!notification);
 
     if (ifLogged() === true)
         return (
@@ -78,16 +68,22 @@ function UploadFiles(props) {
                             <label className="labelUpload" htmlFor="fileUpload">
                                 {translate(('uploadFile'))}
                             </label>
-                            <input className="buttonStyle" type="file" multiple
+                            <input className="uploadButton" type="file" multiple
                                    id="fileUpload"
                                    onChange={e => selectFile(e, "upload/files", uploadedFiles, setUploadedFiles)}/>
                             <List className={classes.root} subheader={<li/>}>
                                 <li className={classes.listSection}>
                                     <ul className={classes.ul}>
                                         {uploadedFiles.map((item) => (
-                                            <ListItem>
-                                                <ListItemText primary={`${item}`}/>
-                                            </ListItem>
+                                            <Col xs={20}>
+                                                <Toast show={notification} onClose={hideNotification}
+                                                       className="toastCard">
+                                                    <ToastHeader/>
+                                                    <Toast.Body>
+                                                        <p>{`${(item)}`}</p>
+                                                    </Toast.Body>
+                                                </Toast>
+                                            </Col>
                                         ))}
                                     </ul>
                                 </li>
@@ -100,7 +96,7 @@ function UploadFiles(props) {
                             <label className="labelUpload" htmlFor="folderUpload">
                                 {translate(('uploadFolder'))}
                             </label>
-                            <input className="buttonStyle" type="file"
+                            <input className="uploadButton" type="file"
                                    id="folderUpload"
                                    onChange={e => selectFile(e, "upload/dicom", uploadedFolder, setUploadedFolder)}
                                    directory="" webkitdirectory=""
@@ -110,52 +106,43 @@ function UploadFiles(props) {
                             <List className={classes.root} subheader={<li/>}>
                                 <li className={classes.listSection}>
                                     <ul className={classes.ul}>
-                                        {uploadedFolder.map((item) => (
-                                            <ListItem>
-                                                <ListItemText primary={`${Object.keys(item)}`}/>
-                                                <ListItemText primary={`${Object.values(item)}`}/>
-                                            </ListItem>
-                                            // console.log(item)
-                                        ))}
                                     </ul>
                                 </li>
                             </List>
+                            {uploadedFolder.map((item) => (
+                                <Col xs={20}>
+                                    <Toast show={notification} onClose={hideNotification}
+                                           className="toastCard">
+                                        <ToastHeader>
+                                            <strong className="mr-auto">{`${Object.values(item)[5]}`}</strong>
+                                        </ToastHeader>
+                                        <Toast.Body>
+                                            <div className="row">
+                                                <div className="column">
+                                                    <p>{`${Object.keys(item)[0]}`}</p>
+                                                    <p>{`${Object.keys(item)[1]}`}</p>
+                                                    <p>{`${Object.keys(item)[2]}`}</p>
+                                                    <p>{`${Object.keys(item)[3]}`}</p>
+                                                    <p>{`${Object.keys(item)[4]}`}</p>
+                                                </div>
+                                                <div className="column">
+                                                    <p>{`${Object.values(item)[0]}`}</p>
+                                                    <p>{`${Object.values(item)[1]}`}</p>
+                                                    <p>{`${Object.values(item)[2]}`}</p>
+                                                    <p>{`${Object.values(item)[3]}`}</p>
+                                                    <p>{`${Object.values(item)[4]}`}</p>
+                                                </div>
+                                            </div>
+                                        </Toast.Body>
+                                    </Toast>
+                                </Col>
+                            ))}
                         </Card>
                     </Col>
                 </Row>
-
-
-                {/*<Card className={classes.cardStyle}>*/}
-                {/*    <Dropzone onDrop={ha
-                ndleDrop}>*/}
-                {/*        {({getRootProps, getInputProps}) => (*/}
-                {/*            <div{...getRootProps({className: "dropzone"})}>*/}
-                {/*                <input {...getInputProps()}*/}
-                {/*                       onChange={e => selectFile(e, "upload/all", uploadedDrag, setUploadedDrag)}*/}
-                {/*                       style={{*/}
-                {/*                           height: "200px",*/}
-                {/*                           width: "100%",*/}
-                {/*                           visibility: "hidden",*/}
-                {/*                           value: "value0,"*/}
-                {/*                       }}/>*/}
-                {/*            </div>*/}
-                {/*        )}*/}
-                {/*    </Dropzone>*/}
-
-                {/*</Card>*/}
-                <List className={classes.dragUpload} subheader={<li/>}>
-                    <li className={classes.listSection}>
-                        <ul className={classes.ul}>
-                            {uploadedDrag.map((item) => (
-                                <ListItem>
-                                    <ListItemText primary={`${item}`}/>
-                                </ListItem>
-                            ))}
-                        </ul>
-                    </li>
-                </List>
                 {currentFile && (
-                    <div className="progress">
+                    <div className="progress"
+                         hidden={hiddenProgress}>
                         <div
                             className="progress-bar progress-bar-info progress-bar-striped"
                             role="progressbar"
@@ -168,23 +155,6 @@ function UploadFiles(props) {
                         </div>
                     </div>
                 )}
-                <Col xs={6}>
-                    <Toast show={showA} onClose={toggleShowA}
-                           className="toastCard">
-                        <ToastHeader>
-
-
-                            <strong className="mr-auto">Bootstrap</strong>
-                            <small>11 mins ago</small>
-                        </ToastHeader>
-                        <Toast.Body>Woohoo, you're reading this text in a Toast!</Toast.Body>
-                    </Toast>
-                </Col>
-                <Col xs={6}>
-                    <button onClick={toggleShowA}>
-                        Toggle Toast <strong>with</strong> Animation
-                    </button>
-                </Col>
             </div>
         );
     else return (<Redirect

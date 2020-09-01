@@ -1,5 +1,25 @@
-.language{
+.language {
     position: absolute;
-    width:60%;
+    width: 60%;
     margin-left: 35%;
+}
+
+.logout {
+    position: relative;
+    width: 45%;
+    margin-left: 50%;
+}
+
+@media (min-width: 320px) and (max-width: 640px) {
+    .language {
+        position: absolute;
+        width: 60%;
+        margin-left: 25%;
+    }
+
+    .logout {
+        position: fixed;
+        width: 65%;
+        margin-left: 50%;
+    }
 }

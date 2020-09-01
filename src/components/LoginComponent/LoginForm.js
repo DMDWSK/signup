@@ -7,13 +7,17 @@ import {useDispatch, useSelector} from "react-redux";
 import {API_BASE_URL} from "../../constants/apiContants";
 import {I18nContext} from "../../i18n";
 import {savePhoneNumber} from "../../redux/actions";
-import { Redirect } from "react-router-dom";
+import {Redirect} from "react-router-dom";
 import {redirectToRegister, redirectToUpload} from "../../redirect/redirect"
 import RefreshIcon from '@material-ui/icons/Refresh';
+import {addToken, getToken} from "../../token/tokenOperations";
+import {NotificationManager} from 'react-notifications';
+import Loader from "react-loader-spinner";
 
 
 function LoginForm(props) {
-    const token = localStorage.getItem("token")
+    const token = getToken();
+    let url = "auth/token/signin"
     const {translate} = useContext(I18nContext);
     const value = useSelector(state => state.phone[0])
     const [checked, setChecked] = useState(false);
@@ -21,15 +25,10 @@ function LoginForm(props) {
         username: "",
         password: "",
 
-        payload: {
-            "username": ""
-        },
-        url: "auth/token/signin",
         disabled: false,
         buttonDisabled: true,
         hidden: true,
         buttonLabel: translate(('getCode')),
-        successMessage: null
     })
 
     function ifLogged() {
@@ -37,9 +36,9 @@ function LoginForm(props) {
         return !(url === "login" && token);
     }
 
+
     const handleChangePhoneNumber = (value) => {
         if (value.length < 12) {
-            console.log(state.disabled)
             setState(prevState => (
                 {
                     ...prevState,
@@ -64,58 +63,54 @@ function LoginForm(props) {
             [id]: value
         }))
     }
-    const getToken = () => {
-
+    const resendCode = () => {
+        receiveToken(url = "auth/token/signin");
+    }
+    const receiveToken = (url) => {
         let payload = {
             "username": state.username
         }
-        axios.post(API_BASE_URL + state.url, payload)
+        axios.post(API_BASE_URL + url, payload)
             .then(function () {
+                NotificationManager.success(translate(('sentCode')))
                 setChecked(true);
+                url = "auth/signin";
                 setState(prevState => (
                     {
                         ...prevState,
                         hidden: false,
                         disabled: true,
-                        url: "auth/signin",
-                        'successMessage': translate(('sentCode')),
                         buttonLabel: translate(('signIn'))
                     }
                 ))
             })
             .catch(function (error) {
                 if (error.response.status === 401) {
-                    props.showError(translate(('error_401')))
-
+                    NotificationManager.error(translate(('error_401')))
                 }
             });
-
     }
 
-
-    const signIn = () => {
+    const signIn = (url) => {
         let payload = {
             "username": state.username,
             "password": state.password
         };
 
-        axios.post(API_BASE_URL + state.url, payload)
+        axios.post(API_BASE_URL + url, payload)
             .then(function (response) {
-                setState(prevState => (
-                    {
-                        ...prevState,
-                        url: "auth/signin",
-                        'successMessage': 'Ви успішно увійшли'
-                    }
-                ))
-                localStorage.setItem("token", response.data.accessToken)
-                console.log(response.data.accessToken)
+                addToken(response.data.accessToken);
                 redirectToUpload(props);
             })
+            .catch(function (error) {
+                if (error.response.status === 401) {
+                    NotificationManager.error(translate(('error_401')))
+
+                }
+            });
     }
 
     const handleRefresh = (e) => {
-        console.log("REFRESH")
         e.preventDefault();
         setChecked(false);
         setState(prevState => (
@@ -129,7 +124,6 @@ function LoginForm(props) {
                 disabled: false,
                 hidden: true,
                 buttonLabel: translate(('getCode')),
-                successMessage: null
             }
         ));
     }
@@ -137,9 +131,9 @@ function LoginForm(props) {
     const handleSubmitClick = (e) => {
         e.preventDefault();
         if (checked) {
-            signIn()
+            signIn(url)
         } else {
-            getToken()
+            receiveToken(url)
         }
     }
 
@@ -183,18 +177,19 @@ function LoginForm(props) {
                 onClick={handleRefresh}
             />
 
-            <div className="alert alert-success mt-2" style={{display: state.successMessage ? 'block' : 'none'}}
-                 role="alert">
-                {state.successMessage}
-            </div>
+
             <div className="registerMessage">
                 <span>{translate(('question2'))}</span>
                 <span className="loginText" onClick={() => redirectToRegister(props)}> {translate(('signUp'))}</span>
             </div>
-            <div className="mt-2">
-                <span className="sentCode" hidden={state.hidden}
-                      onClick={() => getToken()}> {translate(('noCode'))}</span>
-            </div>
+            <button
+                className="buttonStyle"
+                hidden={state.hidden}
+                onClick={resendCode}
+                disabled={state.buttonDisabled}
+            >Код
+            </button>
+           
         </div>
     )
     else return (<Redirect

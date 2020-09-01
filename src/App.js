@@ -5,14 +5,12 @@ import LoginForm from './components/LoginComponent/LoginForm';
 import RegistrationForm from './components/RegistrationComponent/RegistrationForm';
 import UploadFiles from "./components/UploaderComponent/Uploader";
 import {BrowserRouter as Router, Route, Switch} from "react-router-dom";
-import AlertComponent from './components/AlertComponent/AlertComponent';
 import Questionnaire from "./components/QuestionnaireComponent/Questionnaire";
-import Sidebar from "./components/SideBarComponent/SideBar";
+import {NotificationContainer} from "react-notifications";
+
 
 function App() {
     const [title, updateTitle] = useState(null);
-    const [errorMessage, updateErrorMessage] = useState(null);
-
 
     return (
         <Router>
@@ -21,23 +19,23 @@ function App() {
                 <div className="container d-flex align-items-center flex-column">
                     <Switch>
                         <Route path="/" exact={true}>
-                            <RegistrationForm showError={updateErrorMessage} updateTitle={updateTitle}/>
+                            <RegistrationForm  updateTitle={updateTitle}/>
                         </Route>
                         <Route path="/register">
-                            <RegistrationForm showError={updateErrorMessage} updateTitle={updateTitle}/>
+                            <RegistrationForm updateTitle={updateTitle}/>
                         </Route>
                         <Route path="/login">
-                            <LoginForm showError={updateErrorMessage} updateTitle={updateTitle}/>
+                            <LoginForm updateTitle={updateTitle}/>
                         </Route>
                         <Route path="/upload">
-                            <UploadFiles showError={updateErrorMessage} updateTitle={updateTitle}/>
+                            <UploadFiles  updateTitle={updateTitle}/>
                         </Route>
                         <Route path="/questionnaire">
-                            <Questionnaire showError={updateErrorMessage} updateTitle={updateTitle}/>
+                            <Questionnaire updateTitle={updateTitle}/>
                         </Route>
                     </Switch>
-                    <AlertComponent errorMessage={errorMessage} hideError={updateErrorMessage}/>
                 </div>
+                <NotificationContainer/>
             </div>
         </Router>
     );
