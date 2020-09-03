@@ -21,6 +21,9 @@ import {Link, withRouter} from "react-router-dom";
 import '../RegistrationComponent/RegistrationForm.css'
 import {I18nContext} from "../../i18n";
 import {getToken, removeToken} from "../../token/tokenOperations";
+import {API_BASE_URL} from "../../constants/apiContants";
+import {NotificationManager} from "react-notifications";
+import {authAxios} from "../../interceptors/interceptor";
 
 
 function Header(props) {
@@ -29,6 +32,7 @@ function Header(props) {
     const theme = useTheme();
     const [open, setOpen] = React.useState(false);
     const token = getToken();
+    const [user, setUser] = React.useState();
 
     const logout = (e) => {
         e.preventDefault();
@@ -36,8 +40,17 @@ function Header(props) {
         props.history.push("/login")
     }
 
+
     function SideBar() {
         if (token) {
+            authAxios.get(API_BASE_URL + "auth/user")
+                .then(function (response) {
+                    setUser(response.data.firstName + " " + response.data.lastName)
+                }).catch(function (error) {
+                if (error.response.status === 401) {
+                    NotificationManager.error(translate(('error_401')))
+                }
+            });
             return <IconButton
                 color="inherit"
                 aria-label="open drawer"
@@ -73,6 +86,7 @@ function Header(props) {
             <CssBaseline/>
             <AppBar
                 position="fixed"
+                id = 'header'
                 className={clsx(classes.appBar, {
                     [classes.appBarShift]: open,
                 })}
@@ -84,9 +98,14 @@ function Header(props) {
                             Angelholm
                         </Typography>
                     </div>
-                    <div className="language">
-                        <LanguageSelect/>
-                    </div>
+                    {/*<div className="language">*/}
+                    {/*    <LanguageSelect/>*/}
+                    {/*</div>*/}
+                    {/*<div>*/}
+                    {/*    <h5>*/}
+                    {/*        {user}*/}
+                    {/*    </h5>*/}
+                    {/*</div>*/}
                     <div className="logout">
                         <LogOut/>
                     </div>

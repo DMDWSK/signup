@@ -34,7 +34,7 @@ function UploadFiles() {
         let currentFile = e.target.files;
         let uploadedData = formData.getAll('file');
         uploadedData.forEach(function (item, index, object) {
-            if (item.size > 50) {
+            if (item.size > 500000000) {
                 object.splice(index, 1)
                 currentFile = object
             } else {
@@ -64,7 +64,7 @@ function UploadFiles() {
             <div>
                 <Row>
                     <Col sm="6">
-                        <Card body>
+                        <Card body className="card">
                             <label className="labelUpload" htmlFor="fileUpload">
                                 {translate(('uploadFile'))}
                             </label>

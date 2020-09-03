@@ -25,8 +25,8 @@
     text-transform: uppercase;
     font-weight: 400;
     color: #FFFFFF;
-    background-color: #3f51b5;
-    box-shadow: inset 0 -0.6em 0 -0.35em rgba(0, 0, 0, 0.17);
+    background-color: #db8c76;
+    /*box-shadow: inset 0 -0.6em 0 -0.35em rgba(0, 0, 0, 0.17);*/
     text-align: center;
     position: relative;
     cursor: pointer;

@@ -18,6 +18,7 @@ authAxios.interceptors.request.use(req => {
 
 authAxios.interceptors.response.use(response => response,
     async error => {
+    console.log("ERROR",error)
         const token = localStorage.getItem("token");
         if (!token || error.status !== 401) {
             removeToken();

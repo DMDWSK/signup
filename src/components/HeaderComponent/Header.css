@@ -1,3 +1,9 @@
+#header{
+    background: linear-gradient(#ae000f, #ff474d);
+    /*background: linear-gradient(#ae000f, #ff474d);*/
+    opacity: 80%;
+    /*background-color: #ebe1af;*/
+}
 .language {
     position: absolute;
     width: 60%;

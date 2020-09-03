@@ -2,18 +2,16 @@ import React, {useContext, useState} from 'react';
 import axios from 'axios';
 import './RegistrationForm.css';
 import PhoneInput from "react-phone-input-2";
-import {withRouter} from "react-router-dom";
+import {Redirect, withRouter} from "react-router-dom";
 import {useDispatch} from 'react-redux';
 import {savePhoneNumber} from "../../redux/actions"
 import {API_BASE_URL} from "../../constants/apiContants";
 import {I18nContext} from "../../i18n";
-import {redirectToUpload, redirectToLogin} from "../../redirect/redirect"
-import Loader from 'react-loader-spinner'
+import {redirectToLogin, redirectToUpload} from "../../redirect/redirect"
 import RefreshIcon from "@material-ui/icons/Refresh";
-import {Redirect} from "react-router-dom";
 import {addToken, getToken} from "../../token/tokenOperations";
 import {NotificationManager} from "react-notifications";
-
+import Email from "react-email-autocomplete";
 
 
 let today = new Date();
@@ -41,7 +39,8 @@ function RegistrationForm(props) {
         disabled: false,
         hidden: true,
     })
-    let buttonLabel = translate(('getCode'));
+
+    let buttonLabel = !checked ? translate(('getCode')) : translate(('signUp'));
 
     function ifLogged() {
         let url = window.location.href.split('/').slice(-1)[0]
@@ -61,7 +60,7 @@ function RegistrationForm(props) {
             setState(prevState => (
                 {
                     ...prevState,
-                    buttonDisabled: false
+                    buttonDisabled: true
                 }
             ));
         } else {
@@ -87,12 +86,11 @@ function RegistrationForm(props) {
     }
 
     const handleUserEmail = (event) => {
-        if (event.target.value.match("^\\w+([\\.-]?\\w+)*@\\w+([\\.-]?\\w+)*(\\.\\w{2,})+$") !== null) {
-            setState(prevState => ({
-                ...prevState,
-                email: event.target.value,
-            }))
-        }
+        const {id, value} = event.target
+        setState(prevState => ({
+            ...prevState,
+            [id]: value,
+        }))
     }
 
     const handleChangeCode = (event) => {
@@ -116,7 +114,6 @@ function RegistrationForm(props) {
         axios.post(API_BASE_URL + state.url, payload)
             .then(function () {
                 NotificationManager.success(translate(('sentCode')))
-                buttonLabel = translate(('signUp'))
                 setChecked(true);
                 setState(prevState => (
                     {
@@ -131,7 +128,7 @@ function RegistrationForm(props) {
             .catch(function (error) {
                 if (error.response.status === 409) {
                     dispatch(savePhoneNumber(state.username));
-                    NotificationManager.error(translate(('error_401')))
+                    NotificationManager.error(translate(('error_409')))
                     redirectToLogin(props);
 
                 }
@@ -159,8 +156,14 @@ function RegistrationForm(props) {
                 ))
                 addToken(response.data.accessToken)
                 redirectToUpload(props);
-            })
+            }).catch(function (error) {
+            if (error.response.status === 401) {
+                NotificationManager.error(translate(('error_401_code')))
+
+            }
+        });
     }
+
 
     const handleRefresh = (e) => {
         e.preventDefault();
@@ -190,8 +193,8 @@ function RegistrationForm(props) {
     }
 
     if (ifLogged() === true) return (
-        <div className="card col-12 col-lg-4 login-card mt-2 hv-center" id="signUp">
-            <div id="categoryName" className="card-header">{translate(('registration'))}</div>
+        <div className="card col-12 col-lg-4 login-card mt-5 hv-center signUp" >
+            <div id="categoryName">{translate(('registration'))}</div>
             <form>
                 <div className="form-group text-left">
                     <label htmlFor="exampleInputLastName">{translate(('surname'))}</label>
@@ -250,14 +253,8 @@ function RegistrationForm(props) {
 
                 <div className="form-group text-left">
                     <label htmlFor="exampleInputEmail1">{translate(('email'))}</label>
-                    <input type="email"
-                           className="form-control"
-                           id="email"
-                           aria-describedby="emailHelp"
-                           placeholder={translate(('enterEmail'))}
-                           value={state.email}
-                           onChange={handleUserEmail}
-                    />
+                    <Email className="form-control" placeholder={translate(('enterEmail'))} value={state.email}
+                           onChange={handleUserEmail}/>
                 </div>
 
                 <div className="form-group text-left"
@@ -282,15 +279,17 @@ function RegistrationForm(props) {
                 </button>
             </form>
 
-            <RefreshIcon
-                className="refreshIcon"
-                hidden={state.hidden}
-                onClick={handleRefresh}
-            />
+            <div>
+                <RefreshIcon
+                    className="refreshIcon"
+                    hidden={state.hidden}
+                    onClick={handleRefresh}
+                />
 
-            <div className="mt-2">
-                <span>{translate(('question'))}</span>
-                <span className="loginText" onClick={() => redirectToLogin(props)}> {translate(('signIn'))}</span>
+                <div className="mt-2">
+                    <span>{translate(('question'))}</span>
+                    <span className="loginText" onClick={() => redirectToLogin(props)}> {translate(('signIn'))}</span>
+                </div>
             </div>
         </div>
     )

@@ -1,18 +1,15 @@
 import React, {useContext, useState} from 'react';
 import axios from 'axios';
 import './LoginForm.css';
-import {withRouter} from "react-router-dom";
+import {Redirect, withRouter} from "react-router-dom";
 import PhoneInput from "react-phone-input-2";
-import {useDispatch, useSelector} from "react-redux";
+import {useSelector} from "react-redux";
 import {API_BASE_URL} from "../../constants/apiContants";
 import {I18nContext} from "../../i18n";
-import {savePhoneNumber} from "../../redux/actions";
-import {Redirect} from "react-router-dom";
 import {redirectToRegister, redirectToUpload} from "../../redirect/redirect"
 import RefreshIcon from '@material-ui/icons/Refresh';
 import {addToken, getToken} from "../../token/tokenOperations";
 import {NotificationManager} from 'react-notifications';
-import Loader from "react-loader-spinner";
 
 
 function LoginForm(props) {
@@ -28,8 +25,8 @@ function LoginForm(props) {
         disabled: false,
         buttonDisabled: true,
         hidden: true,
-        buttonLabel: translate(('getCode')),
     })
+    let buttonLabel = !checked ? translate(('getCode')):translate(('signUp'));
 
     function ifLogged() {
         let url = window.location.href.split('/').slice(-1)[0]
@@ -74,13 +71,11 @@ function LoginForm(props) {
             .then(function () {
                 NotificationManager.success(translate(('sentCode')))
                 setChecked(true);
-                url = "auth/signin";
                 setState(prevState => (
                     {
                         ...prevState,
                         hidden: false,
                         disabled: true,
-                        buttonLabel: translate(('signIn'))
                     }
                 ))
             })
@@ -96,7 +91,7 @@ function LoginForm(props) {
             "username": state.username,
             "password": state.password
         };
-
+        url = "auth/signin";
         axios.post(API_BASE_URL + url, payload)
             .then(function (response) {
                 addToken(response.data.accessToken);
@@ -123,7 +118,6 @@ function LoginForm(props) {
                 url: "auth/token/signin",
                 disabled: false,
                 hidden: true,
-                buttonLabel: translate(('getCode')),
             }
         ));
     }
@@ -167,7 +161,7 @@ function LoginForm(props) {
                     className="buttonStyle"
                     onClick={handleSubmitClick}
                     disabled={state.buttonDisabled}
-                >{state.buttonLabel}
+                >{buttonLabel}
                 </button>
             </form>
 
@@ -182,14 +176,12 @@ function LoginForm(props) {
                 <span>{translate(('question2'))}</span>
                 <span className="loginText" onClick={() => redirectToRegister(props)}> {translate(('signUp'))}</span>
             </div>
-            <button
-                className="buttonStyle"
-                hidden={state.hidden}
-                onClick={resendCode}
-                disabled={state.buttonDisabled}
-            >Код
-            </button>
-           
+            <div className="registerMessage">
+                <span className="loginText" hidden={state.hidden} onClick={resendCode}>
+                    {translate(('noCode'))}
+                </span>
+            </div>
+
         </div>
     )
     else return (<Redirect

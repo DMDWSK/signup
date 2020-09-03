@@ -34,6 +34,7 @@
   "noCode": "Didn't receive a code?",
   "error_409": "This phone number was registered before. Login please!",
   "error_401": "You have entered wrong data.Try again!",
+  "error_401_code": "You have entered wrong code.Try again!",
   "successLogin": "You have successfully logged in",
 
   "uploadFile": "Upload images/documents",

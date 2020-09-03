@@ -3,7 +3,9 @@
 }
 
 .labelUpload {
-    height: 50px;
+    margin-left:15%;
+    /*height: 10%;*/
+    width: 70%;
     cursor: pointer;
     -webkit-border-radius: 6px;
     -moz-border-radius: 4px;
@@ -37,8 +39,9 @@
     border: solid 1px #000000;
     background-color: #3f51b5;
     border-radius: 4px;
-
 }
-
+.card{
+    margin-top: 30%;
+}
 
 

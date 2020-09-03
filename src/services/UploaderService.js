@@ -1,5 +1,3 @@
-import axios from 'axios'
-import {API_BASE_URL} from "../constants/apiContants";
 import {authAxios} from "../interceptors/interceptor";
 
 const upload = (files, url, onUploadProgress) => {

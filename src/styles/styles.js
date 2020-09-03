@@ -34,8 +34,6 @@ export const useStyles = makeStyles((theme) => ({
         },
         dragUpload: {
             width: '100%',
-            // maxWidth: 360,
-            // backgroundColor: theme.palette.background.paper,
             position: 'relative',
             overflow: 'auto',
             maxHeight: 150,

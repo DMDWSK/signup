@@ -2,9 +2,9 @@
     background-color: #3f51b5;
     max-height: 70px;
 }
-/*.toolbar{*/
-/*    size: 80px;*/
-/*}*/
+.toolbar{
+    size: 80px;
+}
 .flag{
     background-color: #3f51b5;;
     color: #910909;
